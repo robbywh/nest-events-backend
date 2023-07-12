@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
@@ -17,6 +18,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Controller('events')
 export class EventsController {
+  private readonly logger = new Logger(EventsController.name);
+
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
@@ -24,7 +27,10 @@ export class EventsController {
 
   @Get()
   async findAll() {
-    return await this.eventRepository.find();
+    this.logger.log('Hit the findAll route');
+    const events = await this.eventRepository.find();
+    this.logger.debug(`Found ${events.length} events`);
+    return events;
   }
 
   @Get('/practice')
