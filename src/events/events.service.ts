@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Event } from './event.entity';
 import { AttendeeAnswerEnum } from './attendee.entity';
+import { ListEvents, WhenEventFilter } from './input/list.events';
+import { async } from 'rxjs';
+import { PaginateOptions, paginate } from 'src/pagination/paginator';
 
 @Injectable()
 export class EventsService {
@@ -49,6 +52,49 @@ export class EventsService {
             answer: AttendeeAnswerEnum.Rejected,
           }),
       );
+  }
+
+  private async getEventsWithAttendeeCountFiltered(filter?: ListEvents) {
+    let query = this.getEventsWithAttendeeCountQuery();
+
+    if (!filter) {
+      return query;
+    }
+
+    if (filter.when) {
+      if (filter.when == WhenEventFilter.Today) {
+        query = query.andWhere(
+          `e.when >= CURDATE() AND e.when <= CURDATE() + INTERVAL 1 DAY`,
+        );
+      }
+
+      if (filter.when == WhenEventFilter.Tommorow) {
+        query = query.andWhere(
+          `e.when >= CURDATE() + INTERVAL 1 DAY AND e.when <= CURDATE() + INTERVAL 2 DAY`,
+        );
+      }
+
+      if (filter.when == WhenEventFilter.ThisWeek) {
+        query = query.andWhere(`YEARWEEK(e.when, 1) = YEARWEEK(CURDATE(), 1)`);
+      }
+
+      if (filter.when == WhenEventFilter.NextWeek) {
+        query = query.andWhere(
+          `YEARWEEK(e.when, 1) = YEARWEEK(CURDATE(), 1) + 1`,
+        );
+      }
+    }
+    return await query;
+  }
+
+  public async getEventsWithAttendeeCountFilteredPaginated(
+    filter: ListEvents,
+    paginateOptions: PaginateOptions,
+  ) {
+    return await paginate(
+      await this.getEventsWithAttendeeCountFiltered(filter),
+      paginateOptions,
+    );
   }
 
   public async getEvent(id: number): Promise<Event | undefined> {
