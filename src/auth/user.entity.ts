@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Event } from './../events/event.entity';
 import { Profile } from './profile.entity';
-import { Attendee } from 'src/events/attendee.entity';
+import { Attendee } from './../events/attendee.entity';
 
 @Entity()
 export class User {
