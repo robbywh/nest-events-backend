@@ -19,9 +19,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuardJwt } from 'src/auth/auth-guard.jwt';
-import { CurrentUser } from 'src/auth/current-user.decorator';
-import { User } from 'src/auth/user.entity';
+import { AuthGuardJwt } from './../auth/auth-guard.jwt';
+import { CurrentUser } from './../auth/current-user.decorator';
+import { User } from './../auth/user.entity';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './input/create-event.dto';
 import { ListEvents } from './input/list.events';
@@ -151,8 +151,8 @@ export class EventsController {
   @Delete(':id')
   @UseGuards(AuthGuardJwt)
   @HttpCode(204)
-  async remove(@Param('id') id, @CurrentUser() user: User) {
-    const event = await this.eventsService.getEventWithAttendeeCount(id);
+  async remove(@Param('id', ParseIntPipe) id, @CurrentUser() user: User) {
+    const event = await this.eventsService.findOne(id);
 
     if (!event) {
       throw new NotFoundException();
