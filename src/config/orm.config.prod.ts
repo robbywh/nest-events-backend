@@ -6,7 +6,7 @@ import { Subject } from '../school/subject.entity';
 import { Teacher } from '../school/teacher.entity';
 import { User } from '../auth/user.entity';
 import { Profile } from '../auth/profile.entity';
-import { Course } from 'src/school/course.entity';
+import { Course } from '../school/course.entity';
 
 export default registerAs(
   'orm.config',
